@@ -1,8 +1,17 @@
-*.iml
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
 /build
-/captures
+
+# Ignore IntelliJ-specific files by default.
+.idea/*
+*.iml
+
+*/build
+
+# However, there are still some files that we intentionally keep in .idea so
+# that they are associated with Android Studio projects when the project is
+# imported
+!.idea/runConfigurations
+!.idea/vcs.xml
+!.idea/inspectionProfiles
