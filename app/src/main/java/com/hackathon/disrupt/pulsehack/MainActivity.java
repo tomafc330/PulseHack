@@ -1,14 +1,14 @@
 package com.hackathon.disrupt.pulsehack;
 
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.hackathon.disrupt.pulsehack.model.BooleanWrapper;
 import com.harman.pulsesdk.DeviceModel;
 import com.harman.pulsesdk.ImplementPulseHandler;
 import com.harman.pulsesdk.PulseColor;
@@ -29,10 +29,14 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   Timer mTimer = null;
   boolean isConnectBT;
 
+  int unreadMessages = 0;
+
   @Bind(R.id.is_on)
   public ToggleButton isOnButton;
 
   public ImplementPulseHandler pulseHandler = new ImplementPulseHandler();
+
+  PulseColor[] currentColors = getEmptyPulseColors();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -54,19 +58,92 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   @OnClick(R.id.simulate_anon_contact)
   public void anonClick() {
-    pulseHandler.SetColorImage(createMessage(false));
+    updateColors(false);
+    pulseHandler.SetColorImage(currentColors);
+    blink5Times();
+    unreadMessages++;
   }
 
-  private PulseColor[] createMessage(boolean isContact) {
-    PulseColor[] results = new PulseColor[99];
-    init(results);
-    for (int i = 88; i < 99; i++) {
+  @OnClick(R.id.simulate_verified_contact)
+  public void contactClick() {
+    updateColors(true);
+    pulseHandler.SetColorImage(currentColors);
+    blink5Times();
+    unreadMessages++;
+  }
+
+  private void blink5Times() {
+    final Timer blinkTimer = new Timer();
+    final BooleanWrapper boolWrapper = new BooleanWrapper();
+    TimerTask task = new TimerTask() {
+      @Override
+      public void run() {
+        MainActivity.this.runOnUiThread(new Runnable() {
+          @Override
+          public synchronized void run() {
+            if (boolWrapper.bool) {
+              boolWrapper.bool = false;
+              pulseHandler.SetColorImage(currentColors);
+            } else {
+              boolWrapper.bool = true;
+              pulseHandler.SetColorImage(getColorsForLastMessage());
+            }
+          }
+        });
+      }
+    };
+    blinkTimer.scheduleAtFixedRate(task, 2000, 1000);
+
+    Timer cancelBlinkTimer = new Timer();
+    cancelBlinkTimer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        MainActivity.this.runOnUiThread(new Runnable() {
+          @Override
+          public synchronized void run() {
+            blinkTimer.cancel();
+            pulseHandler.SetColorImage(currentColors);
+          }
+        });
+      }
+    }, 5000);
+
+
+  }
+
+  private void resetUnread() {
+    unreadMessages = 0;
+    currentColors = getEmptyPulseColors();
+  }
+
+  private void updateColors(boolean isContact) {
+    int end = unreadMessages > 0 ? 99 - ((unreadMessages) * 22) : 99;
+    for (int i = 77 - (unreadMessages * 22); i < end; i++) {
       PulseColor pulseColor = new PulseColor();
       pulseColor.red = isContact ? (byte) -1 : (byte) 0;
       pulseColor.green = isContact ? (byte) 0 : (byte) -1;
       pulseColor.blue = 0;
+      currentColors[i] = pulseColor;
+    }
+  }
+
+  public PulseColor[] getColorsForLastMessage() {
+    PulseColor[] results = currentColors.clone();
+    for (int i = 77 - (unreadMessages * 22); i < 99 - ((unreadMessages - 1) * 22); i++) {
+      PulseColor pulseColor = new PulseColor();
+      pulseColor.red = 0;
+      pulseColor.green = 0;
+      pulseColor.blue = 0;
       results[i] = pulseColor;
     }
+
+    return results;
+  }
+
+  @NonNull
+  private PulseColor[] getEmptyPulseColors() {
+    PulseColor[] results = new PulseColor[99];
+    init(results);
     return results;
   }
 
@@ -201,5 +278,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   public void onRetBrightness(int i) {
 
   }
+
 }
 
