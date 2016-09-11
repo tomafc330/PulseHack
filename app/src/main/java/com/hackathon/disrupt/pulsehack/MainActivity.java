@@ -1,10 +1,11 @@
 package com.hackathon.disrupt.pulsehack;
 
+import android.bluetooth.BluetoothA2dp;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -16,11 +17,14 @@ import com.harman.pulsesdk.PulseColor;
 import com.harman.pulsesdk.PulseNotifiedListener;
 import com.harman.pulsesdk.PulseThemePattern;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import bluetoothconnector.BluetoothConnector;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -178,11 +182,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     }
   }
 
-
-  public void pick_color(View v) {
-    pulseHandler.CaptureColorFromColorPicker();
-  }
-
   public void setTimer() {
     if (mTimer != null)
       return;
@@ -248,21 +247,67 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   @Override
   public void onRetCaptureColor(final PulseColor capturedColor) {
-//    Toast.makeText(this,
-//        "onRetCaptureColor: red=" + capturedColor.red + " green=" + capturedColor.green + " blue=" + capturedColor.blue,
-//        Toast.LENGTH_SHORT);
-//    runOnUiThread(new Runnable() {
-//      @Override
-//      public void run() {
-//        pulseHandler.SetBackgroundColor(capturedColor, false);
-//        Log.i(Tag, "red:" + (((int) capturedColor.red) & 0xff) + " green:" + (((int) capturedColor.green) & 0xff) + " blue:" + (((int) capturedColor.blue) & 0xff));
-//      }
-//    });
+    if (isAllSameColor(capturedColor)) {
+      sendToHeadphones(capturedColor);
+    }
   }
 
   @Override
   public void onRetCaptureColor(byte red, byte green, byte blue) {
-//    Toast.makeText(this, "onRetCaptureColor1: red=" + red + " green=" + green + " blue=" + blue, Toast.LENGTH_SHORT);
+  }
+
+  private void sendToHeadphones(PulseColor capturedColor) {
+    unreadMessages.add("This is a test message, Please come back for dinner later");
+    if (!unreadMessages.isEmpty() && isAllSameColor(capturedColor)) {
+      new BluetoothConnector(this, new CallBack() {
+        public void perform(final BluetoothA2dp proxy, final BluetoothDevice device, final Method disconnectMethod) {
+          runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              speak(unreadMessages.get(unreadMessages.size() - 1));
+
+              Timer unPairTimer = new Timer();
+              unPairTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                  MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public synchronized void run() {
+                      disconnectMethod.setAccessible(true);
+                      try {
+                        disconnectMethod.invoke(proxy, device);
+                      } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                      } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                      }
+                    }
+                  });
+                }
+              }, 5000);
+
+            }
+          });
+        }
+
+        ;
+      });
+    }
+  }
+
+  private boolean isAllSameColor(PulseColor capturedColor) {
+    Log.e("MainActivity", "Color: R=" + capturedColor.red + " G=" + capturedColor.green + " B=" + capturedColor.blue);
+    return false;
+  }
+
+  private void unpairDevice(BluetoothDevice device) {
+    try {
+      Method m = device.getClass()
+          .getMethod("removeBond", (Class[]) null);
+      m.invoke(device, (Object[]) null);
+    } catch (Exception e) {
+      Log.e("MainActivity", e.getMessage());
+    }
   }
 
   @Override
@@ -283,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   @Override
   public void onRetSetLEDPattern(boolean b) {
     Log.i(Tag, "onRetSetLEDPattern:" + b);
-    pulseHandler.PropagateCurrentLedPattern();
   }
 
   @Override
