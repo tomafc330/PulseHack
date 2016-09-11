@@ -87,7 +87,7 @@ public class BluetoothSwitcher implements BluetoothBroadcastReceiver.Callback, B
         public void run() {
           callBack.perform(proxy, headphones, pulse, disconnectMethod, connectMethod);
         }
-      }, 5000);
+      }, 5500);
     } catch (InvocationTargetException ex) {
       Log.e(TAG, "Unable to invoke connectMethod(BluetoothDevice) method on proxy. " + ex.toString());
     } catch (IllegalAccessException ex) {

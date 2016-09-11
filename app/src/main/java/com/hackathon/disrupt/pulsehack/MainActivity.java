@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
         });
       }
     };
-    blinkTimer.scheduleAtFixedRate(task, 2000, 1000);
+    blinkTimer.scheduleAtFixedRate(task, 2000, 750);
 
 
     Timer cancelBlinkTimer = new Timer();
@@ -127,9 +127,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
         MainActivity.this.runOnUiThread(new Runnable() {
           @Override
           public synchronized void run() {
+            blinkTimer.cancel();
             isCapturing = false;
             soundLevel = -1;
-            blinkTimer.cancel();
             pulseHandler.SetColorImage(currentColors);
           }
         });
