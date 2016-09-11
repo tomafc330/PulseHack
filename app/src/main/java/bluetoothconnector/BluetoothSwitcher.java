@@ -7,6 +7,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.hackathon.disrupt.pulsehack.CallBack;
+import com.hackathon.disrupt.pulsehack.MainActivity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,8 +17,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, BluetoothA2DPRequester.Callback {
-  private static final String TAG = "BluetoothConnector";
+public class BluetoothSwitcher implements BluetoothBroadcastReceiver.Callback, BluetoothA2DPRequester.Callback {
+  private static final String TAG = "BluetoothSwitcher";
 
   /**
    * This is the name of the device to connect to. You can replace this with the name of
@@ -30,10 +31,10 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
    * Local reference to the device's BluetoothAdapter
    */
   private BluetoothAdapter mAdapter;
-  private Context context;
+  private MainActivity context;
   private CallBack callBack;
 
-  public BluetoothConnector(Context context, CallBack callBack) {
+  public BluetoothSwitcher(MainActivity context, CallBack callBack) {
     this.context = context;
     this.callBack = callBack;
 
@@ -79,6 +80,8 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
       //disconnect pulse first
       disconnectMethod.invoke(proxy, pulse);
       connectMethod.invoke(proxy, headphones);
+      context.everestStatus.setText("Connected");
+      context.pulseStatus.setText("Disconnected");
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {

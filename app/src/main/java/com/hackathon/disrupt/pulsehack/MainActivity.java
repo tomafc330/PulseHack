@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.hackathon.disrupt.pulsehack.model.BooleanWrapper;
@@ -23,7 +24,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import bluetoothconnector.BluetoothConnector;
+import bluetoothconnector.BluetoothSwitcher;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements PulseNotifiedListener {
@@ -42,6 +44,12 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   private boolean isCapturing;
   private int soundLevel = -1;
   private static MainActivity instance;
+
+  @Bind(R.id.everest_status)
+  public Button everestStatus;
+
+  @Bind(R.id.pulse_status)
+  public Button pulseStatus;
 
   public static MainActivity getInstance() {
     return instance;
@@ -248,9 +256,8 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   }
 
   private void sendToHeadphones() {
-    unreadMessages.add("This is a test message, Please come back for dinner later");
     if (!unreadMessages.isEmpty()) {
-      new BluetoothConnector(this, new CallBack() {
+      new BluetoothSwitcher(this, new CallBack() {
         public void perform(final BluetoothA2dp proxy, final BluetoothDevice headphones, final BluetoothDevice pulse, final Method disconnectMethod, final Method connectMethod) {
           runOnUiThread(new Runnable() {
             @Override
@@ -265,6 +272,8 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
                     @Override
                     public synchronized void run() {
                       try {
+                        everestStatus.setText("Disconnected");
+                        pulseStatus.setText("Connected");
                         disconnectMethod.invoke(proxy, headphones);
                         connectMethod.invoke(proxy, pulse);
                       } catch (IllegalAccessException e) {

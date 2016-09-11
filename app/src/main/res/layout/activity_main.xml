@@ -1,110 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
-    <LinearLayout android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:background="@color/orange">
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/orange"
+      android:orientation="vertical">
 
-        <LinearLayout android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center">
-
-            <ImageView android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:src="@drawable/icon_tick"
-                android:layout_margin="@dimen/activity_horizontal_margin"
-                />
-
-            <TextView android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:textColor="#ffffff"
-                android:textSize="16sp"
-                android:layout_margin="@dimen/activity_horizontal_margin"
-                android:text="Pulser is working!"
-                android:textAlignment="center"/>
-
-        </LinearLayout>
-
-
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-
-
-    </ScrollView>
-
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#ffffff"
-        >
+        android:layout_gravity="center">
 
-        <ImageView android:src="@drawable/image_pulse2"
-            android:layout_height="100dp"
-            android:layout_width="match_parent"/>
+      <ImageView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="@dimen/activity_horizontal_margin"
+          android:src="@drawable/icon_tick"
+          />
 
-        <TextView android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:textColor="#000000"
-            android:text="Pulse 2"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textAlignment="center"/>
-
-        <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_vertical_margin"
-            android:text="Connect"
-            android:layout_gravity="center_horizontal"
-            android:textColor="#ffffff"
-            android:background="@color/orange"/>
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="@dimen/activity_horizontal_margin"
+          android:text="Pulser is working!"
+          android:textAlignment="center"
+          android:textColor="#ffffff"
+          android:textSize="16sp"/>
 
     </LinearLayout>
 
-    <TextView android:layout_height="1dp"
+
+  </LinearLayout>
+
+  <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+
+  </ScrollView>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="#ffffff"
+      android:orientation="vertical"
+      >
+
+    <ImageView
         android:layout_width="match_parent"
-        android:background="@color/orange" />
+        android:layout_height="100dp"
+        android:src="@drawable/image_pulse2"/>
 
-    <LinearLayout android:layout_width="match_parent"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#ffffff"
-        >
+        android:text="Pulse 2"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
 
-        <ImageView android:src="@drawable/image_everest"
-            android:layout_height="100dp"
-            android:layout_width="match_parent"/>
+    <Button
+        android:id="@+id/pulse_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:background="@color/orange"
+        android:padding="18dp"
+        android:text="Connected"
+        android:textColor="#ffffff"/>
 
-        <TextView android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:textColor="#000000"
-            android:text="Everest Elite 700"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"/>
+  </LinearLayout>
 
-        <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_vertical_margin"
-            android:text="Connect"
-            android:layout_gravity="center_horizontal"
-            android:textColor="#ffffff"
-            android:background="@color/orange"/>
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="@color/orange"/>
 
-        <TextView android:layout_height="1dp"
-            android:layout_width="match_parent"
-            android:background="@color/orange" />
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="#ffffff"
+      android:orientation="vertical"
+      >
 
-    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:src="@drawable/image_everest"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Everest Elite 700"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:background="@color/orange"
+        android:text="Disconnected"
+        android:id="@+id/everest_status"
+        android:padding="18dp"
+        android:textColor="#ffffff"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/orange"/>
+
+  </LinearLayout>
 
 
 </LinearLayout>
