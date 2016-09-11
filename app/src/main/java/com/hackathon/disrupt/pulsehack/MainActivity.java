@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.hackathon.disrupt.pulsehack.model.BooleanWrapper;
 import com.hackathon.disrupt.pulsehack.util.ContactUtil;
@@ -25,7 +24,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import bluetoothconnector.BluetoothConnector;
-import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements PulseNotifiedListener {
@@ -36,9 +34,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   boolean isConnectBT;
 
   List<String> unreadMessages = new ArrayList<>();
-
-  @Bind(R.id.is_on)
-  public ToggleButton isOnButton;
 
   public ImplementPulseHandler pulseHandler = new ImplementPulseHandler();
   private SpeechWrapper speechWrapper;
@@ -213,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   @Override
   public void onConnectMasterDevice() {
     Log.i(Tag, "onConnectMasterDevice");
-    isOnButton.setChecked(true);
     isConnectBT = true;
     cancelTimer();
     Toast.makeText(this, "onConnectMasterDevice", Toast.LENGTH_SHORT).show();
@@ -222,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   @Override
   public void onDisconnectMasterDevice() {
     Log.i(Tag, "onDisconnectMasterDevice");
-    isOnButton.setChecked(false);
     isConnectBT = false;
     setTimer();
     Toast.makeText(this, "onDisconnectMasterDevice", Toast.LENGTH_SHORT).show();
@@ -297,17 +290,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   private boolean isAllSameColor(PulseColor capturedColor) {
     Log.e("MainActivity", "Color: R=" + capturedColor.red + " G=" + capturedColor.green + " B=" + capturedColor.blue);
-    return false;
-  }
-
-  private void unpairDevice(BluetoothDevice device) {
-    try {
-      Method m = device.getClass()
-          .getMethod("removeBond", (Class[]) null);
-      m.invoke(device, (Object[]) null);
-    } catch (Exception e) {
-      Log.e("MainActivity", e.getMessage());
-    }
+    return true;
   }
 
   @Override
