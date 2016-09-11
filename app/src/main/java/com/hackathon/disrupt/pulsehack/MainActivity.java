@@ -1,7 +1,14 @@
 package com.hackathon.disrupt.pulsehack;
 
-import android.content.res.Resources;
-import android.graphics.Color;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import com.harman.pulsesdk.DeviceModel;
+import com.harman.pulsesdk.ImplementPulseHandler;
+import com.harman.pulsesdk.PulseColor;
+import com.harman.pulsesdk.PulseNotifiedListener;
+import com.harman.pulsesdk.PulseThemePattern;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,18 +16,8 @@ import android.view.View;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.harman.pulsesdk.DeviceModel;
-import com.harman.pulsesdk.ImplementPulseHandler;
-import com.harman.pulsesdk.PulseColor;
-import com.harman.pulsesdk.PulseNotifiedListener;
-import com.harman.pulsesdk.PulseThemePattern;
-
 import java.util.Timer;
 import java.util.TimerTask;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements PulseNotifiedListener {
 
@@ -33,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   public ToggleButton isOnButton;
 
   public ImplementPulseHandler pulseHandler = new ImplementPulseHandler();
+  private SpeechWrapper speechWrapper;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     this.setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
 
+    speechWrapper = new SpeechWrapper(getApplicationContext());
     pulseHandler.ConnectMasterDevice(this);
     pulseHandler.registerPulseNotifiedListener(this);
     setTimer();
@@ -199,7 +198,12 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   @Override
   public void onRetBrightness(int i) {
+  }
 
+
+  @OnClick(R.id.fab)
+  public void onClickFab(final View view) {
+    speechWrapper.speak("Hello there. This is a test of the built-in text to speech engine.");
   }
 }
 
