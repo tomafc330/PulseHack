@@ -9,5 +9,5 @@ import java.lang.reflect.Method;
  * Created by tchan on 11/09/16.
  */
 public interface CallBack {
-  void perform(BluetoothA2dp proxy, BluetoothDevice device, Method disconnectMethod);
+  void perform(BluetoothA2dp proxy, BluetoothDevice device, BluetoothDevice pulse, Method disconnectMethod, Method connectMethod);
 }

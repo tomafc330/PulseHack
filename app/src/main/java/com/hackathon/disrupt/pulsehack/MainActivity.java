@@ -231,17 +231,15 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     if (this.soundLevel == -1) {
       this.soundLevel = level;
     } else if (this.soundLevel + 5 < level) {
-      speak(unreadMessages.get(unreadMessages.size() - 1));
-      this.soundLevel = -1;
-      isCapturing = false;
-      resetUnread();
+      speakAndReset(unreadMessages.get(unreadMessages.size() - 1));
     }
   }
 
   @Override
   public void onRetCaptureColor(final PulseColor capturedColor) {
-    if (isAllSameColor(capturedColor)) {
-      sendToHeadphones(capturedColor);
+    Log.e("MainActivity", "Color: R=" + capturedColor.red + " G=" + capturedColor.green + " B=" + capturedColor.blue);
+    if (SkinToneDetector.doesSkinToneMatch(capturedColor)) {
+      sendToHeadphones();
     }
   }
 
@@ -249,15 +247,15 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   public void onRetCaptureColor(byte red, byte green, byte blue) {
   }
 
-  private void sendToHeadphones(PulseColor capturedColor) {
+  private void sendToHeadphones() {
     unreadMessages.add("This is a test message, Please come back for dinner later");
-    if (!unreadMessages.isEmpty() && isAllSameColor(capturedColor)) {
+    if (!unreadMessages.isEmpty()) {
       new BluetoothConnector(this, new CallBack() {
-        public void perform(final BluetoothA2dp proxy, final BluetoothDevice device, final Method disconnectMethod) {
+        public void perform(final BluetoothA2dp proxy, final BluetoothDevice headphones, final BluetoothDevice pulse, final Method disconnectMethod, final Method connectMethod) {
           runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              speak(unreadMessages.get(unreadMessages.size() - 1));
+              speakAndReset(unreadMessages.get(unreadMessages.size() - 1));
 
               Timer unPairTimer = new Timer();
               unPairTimer.schedule(new TimerTask() {
@@ -266,9 +264,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
                   MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public synchronized void run() {
-                      disconnectMethod.setAccessible(true);
                       try {
-                        disconnectMethod.invoke(proxy, device);
+                        disconnectMethod.invoke(proxy, headphones);
+                        connectMethod.invoke(proxy, pulse);
                       } catch (IllegalAccessException e) {
                         e.printStackTrace();
                       } catch (InvocationTargetException e) {
@@ -286,11 +284,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
         ;
       });
     }
-  }
-
-  private boolean isAllSameColor(PulseColor capturedColor) {
-    Log.e("MainActivity", "Color: R=" + capturedColor.red + " G=" + capturedColor.green + " B=" + capturedColor.blue);
-    return true;
   }
 
   @Override
@@ -318,8 +311,11 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   }
 
 
-  public void speak(String string) {
+  public void speakAndReset(String string) {
     speechWrapper.speak(string);
+    this.soundLevel = -1;
+    isCapturing = false;
+    resetUnread();
   }
 
   public void onSmsReceived(String msgFrom, String msgBody) {

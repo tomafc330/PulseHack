@@ -23,9 +23,8 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
    * This is the name of the device to connect to. You can replace this with the name of
    * your device.
    */
-  private static final String DEVICE_NAME = "JBL Everest Elite 700";
-//  private static final String DEVICE_NAME = "B8:69:C2:9B:E7:EC";
-//  private static final String DEVICE_NAME = "A0:E6:F8:EC:69:F2";
+  private static final String DEVICE_NAME_HEADPHONES = "JBL Everest Elite 700";
+  private static final String DEVICE_NAME_PULSE = "NotiflyPulse";
 
   /**
    * Local reference to the device's BluetoothAdapter
@@ -66,26 +65,28 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
 
   @Override
   public void onA2DPProxyReceived(final BluetoothA2dp proxy) {
-    Method connect = getConnectMethod();
-    final BluetoothDevice device = findBondedDeviceByName(mAdapter, DEVICE_NAME);
+    final Method connectMethod = getConnectMethod();
+    final Method disconnectMethod = getDisconnectMethod();
+    final BluetoothDevice pulse = findBondedDeviceByName(mAdapter, DEVICE_NAME_PULSE);
+    final BluetoothDevice headphones = findBondedDeviceByName(mAdapter, DEVICE_NAME_HEADPHONES);
 
     //If either is null, just return. The errors have already been logged
-    if (connect == null || device == null) {
+    if (connectMethod == null || headphones == null || pulse == null) {
       return;
     }
 
     try {
-      connect.setAccessible(true);
-      connect.invoke(proxy, device);
+      //disconnect pulse first
+      disconnectMethod.invoke(proxy, pulse);
+      connectMethod.invoke(proxy, headphones);
       new Timer().schedule(new TimerTask() {
         @Override
         public void run() {
-
-          callBack.perform(proxy, device, getDisconnectMethod());
+          callBack.perform(proxy, headphones, pulse, disconnectMethod, connectMethod);
         }
       }, 5000);
     } catch (InvocationTargetException ex) {
-      Log.e(TAG, "Unable to invoke connect(BluetoothDevice) method on proxy. " + ex.toString());
+      Log.e(TAG, "Unable to invoke connectMethod(BluetoothDevice) method on proxy. " + ex.toString());
     } catch (IllegalAccessException ex) {
       Log.e(TAG, "Illegal Access! " + ex.toString());
     }
@@ -95,6 +96,7 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
     Method disconnect = null;
     try {
       disconnect = BluetoothA2dp.class.getDeclaredMethod("disconnect", BluetoothDevice.class);
+      disconnect.setAccessible(true);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
     }
@@ -108,7 +110,9 @@ public class BluetoothConnector implements BluetoothBroadcastReceiver.Callback, 
    */
   private Method getConnectMethod() {
     try {
-      return BluetoothA2dp.class.getDeclaredMethod("connect", BluetoothDevice.class);
+      Method method = BluetoothA2dp.class.getDeclaredMethod("connect", BluetoothDevice.class);
+      method.setAccessible(true);
+      return method;
     } catch (NoSuchMethodException ex) {
       Log.e(TAG, "Unable to find connect(BluetoothDevice) method in BluetoothA2dp proxy.");
       return null;
