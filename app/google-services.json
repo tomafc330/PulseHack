@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "546832109550",
+    "firebase_url": "https://pulsehack-b244e.firebaseio.com",
+    "project_id": "pulsehack-b244e",
+    "storage_bucket": "pulsehack-b244e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546832109550:android:2556438e18c7ebd0",
+        "android_client_info": {
+          "package_name": "com.hackathon.disrupt.pulsehack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "546832109550-5o0o921roq1i6f86tl6fskl8qfmq05n7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzJQg8KHVUXMm5r9XNhkJeUbKBkbf8YaA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
