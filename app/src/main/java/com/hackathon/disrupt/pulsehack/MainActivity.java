@@ -9,18 +9,20 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.hackathon.disrupt.pulsehack.model.BooleanWrapper;
+import com.hackathon.disrupt.pulsehack.util.ContactUtil;
 import com.harman.pulsesdk.DeviceModel;
 import com.harman.pulsesdk.ImplementPulseHandler;
 import com.harman.pulsesdk.PulseColor;
 import com.harman.pulsesdk.PulseNotifiedListener;
 import com.harman.pulsesdk.PulseThemePattern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements PulseNotifiedListener {
 
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   Timer mTimer = null;
   boolean isConnectBT;
 
-  int unreadMessages = 0;
+  List<String> unreadMessages = new ArrayList<>();
 
   @Bind(R.id.is_on)
   public ToggleButton isOnButton;
@@ -68,20 +70,18 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     System.exit(0);
   }
 
-  @OnClick(R.id.simulate_anon_contact)
-  public void anonClick() {
+  public void anonMessageReceived(String message) {
     updateColors(false);
     pulseHandler.SetColorImage(currentColors);
     blink5Times();
-    unreadMessages++;
+    unreadMessages.add(message);
   }
 
-  @OnClick(R.id.simulate_verified_contact)
-  public void contactClick() {
+  public void contactMessageReceived(String message) {
     updateColors(true);
     pulseHandler.SetColorImage(currentColors);
     blink5Times();
-    unreadMessages++;
+    unreadMessages.add(message);
   }
 
   private void blink5Times() {
@@ -133,13 +133,14 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   }
 
   private void resetUnread() {
-    unreadMessages = 0;
+    unreadMessages.clear();
     currentColors = getEmptyPulseColors();
   }
 
   private void updateColors(boolean isContact) {
-    int end = unreadMessages > 0 ? 99 - ((unreadMessages) * 22) : 99;
-    for (int i = 77 - (unreadMessages * 22); i < end; i++) {
+    int size = unreadMessages.size();
+    int end = size > 0 ? 99 - (size * 22) : 99;
+    for (int i = 77 - (size * 22); i < end; i++) {
       PulseColor pulseColor = new PulseColor();
       pulseColor.red = isContact ? (byte) -1 : (byte) 0;
       pulseColor.green = isContact ? (byte) 0 : (byte) -1;
@@ -150,8 +151,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   public PulseColor[] getColorsForLastMessage() {
     PulseColor[] results = currentColors.clone();
-    int start = 77 - (unreadMessages * 22) < 0 ? 0 : 77 - (unreadMessages * 22);
-    int end = 99 - ((unreadMessages - 1) * 22) > 99 ? 99 : 99 - ((unreadMessages - 1) * 22);
+    int size = unreadMessages.size();
+    int start = 77 - (size * 22) < 0 ? 0 : 77 - (size * 22);
+    int end = 99 - ((size - 1) * 22) > 99 ? 99 : 99 - ((size - 1) * 22);
     for (int i = start; i < end; i++) {
       PulseColor pulseColor = new PulseColor();
       pulseColor.red = 0;
@@ -237,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     if (this.soundLevel == -1) {
       this.soundLevel = level;
     } else if (this.soundLevel + 5 < level) {
-      speak();
+      speak(unreadMessages.get(unreadMessages.size() - 1));
       this.soundLevel = -1;
       isCapturing = false;
       resetUnread();
@@ -246,36 +248,36 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   @Override
   public void onRetCaptureColor(final PulseColor capturedColor) {
-    Toast.makeText(this,
-        "onRetCaptureColor: red=" + capturedColor.red + " green=" + capturedColor.green + " blue=" + capturedColor.blue,
-        Toast.LENGTH_SHORT);
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        pulseHandler.SetBackgroundColor(capturedColor, false);
-        Log.i(Tag, "red:" + (((int) capturedColor.red) & 0xff) + " green:" + (((int) capturedColor.green) & 0xff) + " blue:" + (((int) capturedColor.blue) & 0xff));
-      }
-    });
+//    Toast.makeText(this,
+//        "onRetCaptureColor: red=" + capturedColor.red + " green=" + capturedColor.green + " blue=" + capturedColor.blue,
+//        Toast.LENGTH_SHORT);
+//    runOnUiThread(new Runnable() {
+//      @Override
+//      public void run() {
+//        pulseHandler.SetBackgroundColor(capturedColor, false);
+//        Log.i(Tag, "red:" + (((int) capturedColor.red) & 0xff) + " green:" + (((int) capturedColor.green) & 0xff) + " blue:" + (((int) capturedColor.blue) & 0xff));
+//      }
+//    });
   }
 
   @Override
   public void onRetCaptureColor(byte red, byte green, byte blue) {
-    Toast.makeText(this, "onRetCaptureColor1: red=" + red + " green=" + green + " blue=" + blue, Toast.LENGTH_SHORT);
+//    Toast.makeText(this, "onRetCaptureColor1: red=" + red + " green=" + green + " blue=" + blue, Toast.LENGTH_SHORT);
   }
 
   @Override
   public void onRetSetDeviceInfo(boolean ret) {
-    Toast.makeText(this, "onRetSetDeviceInfo:" + ret, Toast.LENGTH_SHORT);
+//    Toast.makeText(this, "onRetSetDeviceInfo:" + ret, Toast.LENGTH_SHORT);
   }
 
   @Override
   public void onRetGetLEDPattern(PulseThemePattern pattern) {
-    Toast.makeText(this, "onRetGetLEDPattern:" + (pattern == null ? "null" : pattern.name()), Toast.LENGTH_SHORT);
+//    Toast.makeText(this, "onRetGetLEDPattern:" + (pattern == null ? "null" : pattern.name()), Toast.LENGTH_SHORT);
   }
 
   @Override
   public void onRetRequestDeviceInfo(DeviceModel[] deviceModel) {
-    Toast.makeText(this, "onRetRequestDeviceInfo:" + deviceModel.toString(), Toast.LENGTH_SHORT);
+//    Toast.makeText(this, "onRetRequestDeviceInfo:" + deviceModel.toString(), Toast.LENGTH_SHORT);
   }
 
   @Override
@@ -289,13 +291,20 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   }
 
 
-  @OnClick(R.id.fab)
-  public void speak() {
-    speechWrapper.speak("Hello there. This is a test of the built-in text to speech engine.");
+  public void speak(String string) {
+    speechWrapper.speak(string);
   }
 
   public void onSmsReceived(String msgFrom, String msgBody) {
     Log.i("MainActivity", msgFrom + msgBody);
+    // check to see if it's a contact
+    String contact = ContactUtil.findPhoneContactByNumber(this, msgFrom);
+    if (contact == null) {
+      anonMessageReceived(msgBody + " from unknown caller.");
+    } else {
+      contactMessageReceived(msgBody + " from " + contact);
+    }
+
   }
 }
 
