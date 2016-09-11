@@ -18,11 +18,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.hackathon.disrupt.pulsehack.model.BooleanWrapper;
-import com.harman.pulsesdk.DeviceModel;
-import com.harman.pulsesdk.ImplementPulseHandler;
-import com.harman.pulsesdk.PulseColor;
-import com.harman.pulsesdk.PulseNotifiedListener;
-import com.harman.pulsesdk.PulseThemePattern;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   private SpeechWrapper speechWrapper;
 
   PulseColor[] currentColors = getEmptyPulseColors();
+  private boolean isCapturing;
+  private int soundLevel = -1;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   }
 
   private void blink5Times() {
+    isCapturing = true;
+    pulseHandler.GetMicrophoneSoundLevel();
+
     final Timer blinkTimer = new Timer();
     final BooleanWrapper boolWrapper = new BooleanWrapper();
     TimerTask task = new TimerTask() {
@@ -88,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
         MainActivity.this.runOnUiThread(new Runnable() {
           @Override
           public synchronized void run() {
+            if (isCapturing) {
+              pulseHandler.GetMicrophoneSoundLevel();
+            }
             if (boolWrapper.bool) {
               boolWrapper.bool = false;
               pulseHandler.SetColorImage(currentColors);
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
     };
     blinkTimer.scheduleAtFixedRate(task, 2000, 1000);
 
+
     Timer cancelBlinkTimer = new Timer();
     cancelBlinkTimer.schedule(new TimerTask() {
       @Override
@@ -108,12 +112,14 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
         MainActivity.this.runOnUiThread(new Runnable() {
           @Override
           public synchronized void run() {
+            isCapturing = false;
+            soundLevel = -1;
             blinkTimer.cancel();
             pulseHandler.SetColorImage(currentColors);
           }
         });
       }
-    }, 5000);
+    }, 10000);
 
 
   }
@@ -136,7 +142,9 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   public PulseColor[] getColorsForLastMessage() {
     PulseColor[] results = currentColors.clone();
-    for (int i = 77 - (unreadMessages * 22); i < 99 - ((unreadMessages - 1) * 22); i++) {
+    int start = 77 - (unreadMessages * 22) < 0 ? 0 : 77 - (unreadMessages * 22);
+    int end = 99 - ((unreadMessages - 1) * 22) > 99 ? 99 : 99 - ((unreadMessages - 1) * 22);
+    for (int i = start; i < end; i++) {
       PulseColor pulseColor = new PulseColor();
       pulseColor.red = 0;
       pulseColor.green = 0;
@@ -164,11 +172,6 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
   public void pick_color(View v) {
     pulseHandler.CaptureColorFromColorPicker();
   }
-
-  public void record_sound(View v) {
-    pulseHandler.GetMicrophoneSoundLevel();
-  }
-
 
   public void setTimer() {
     if (mTimer != null)
@@ -218,27 +221,19 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
   @Override
   public void onLEDPatternChanged(PulseThemePattern pattern) {
-    //Toast.makeText(this, "onLEDPatternChanged:" + pattern.name(), Toast.LENGTH_SHORT);
-    Log.i(Tag, "onLEDPatternChanged");
-
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        });
   }
 
   @Override
-  public void onSoundEvent(final int soundLevel) {
-    //Toast.makeText(this, "onSoundEvent: level=" + soundLevel, Toast.LENGTH_SHORT);
-    Log.i(Tag, "soundLevel:" + soundLevel);
-    runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Toast.makeText(MainActivity.this, "soundLevel:" + soundLevel, Toast.LENGTH_SHORT);
-      }
-    });
+  public void onSoundEvent(final int level) {
+    Log.i(Tag, "soundLevel:" + level + " previousLevel: " + this.soundLevel);
+    if (this.soundLevel == -1) {
+      this.soundLevel = level;
+    } else if (this.soundLevel + 5 < level) {
+      speak();
+      this.soundLevel = -1;
+      isCapturing = false;
+      resetUnread();
+    }
   }
 
   @Override
@@ -287,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements PulseNotifiedList
 
 
   @OnClick(R.id.fab)
-  public void onClickFab(final View view) {
+  public void speak() {
     speechWrapper.speak("Hello there. This is a test of the built-in text to speech engine.");
   }
 
